@@ -23,32 +23,40 @@ class WorkingTime(object):
         return self.now + relativedelta(day=1, hour=0, minute=0, second=0, microsecond=0)
 
     @property
+    def pay_period_start(self):
+        return self.now + relativedelta(day=15 if self.now.day > 15 else 1, hour=0, minute=0, second=0, microsecond=0)
+
+    @property
+    def pay_period_end(self):
+        return self.now + relativedelta(day=30 if self.now.day > 15 else 15, hour=0, minute=0, second=0, microsecond=0)
+
+    @property
     def month_end(self):
         return self.now + relativedelta(day=31, hour=11, minute=59, second=59, microsecond=0)
 
     @property
     def total_business_days_count(self):
-        return rrule(DAILY, dtstart=self.month_start, until=self.month_end, byweekday=self.BUSINESS_DAYS).count()
+        return rrule(DAILY, dtstart=self.pay_period_start, until=self.pay_period_end, byweekday=self.BUSINESS_DAYS).count()
 
     @property
     def total_days_count(self):
-        return rrule(DAILY, dtstart=self.month_start, until=self.month_end, byweekday=self.WEEK_DAYS).count()
+        return rrule(DAILY, dtstart=self.pay_period_start, until=self.pay_period_end, byweekday=self.WEEK_DAYS).count()
 
     @property
     def business_days_left_count(self):
-        return rrule(DAILY, dtstart=self.now, until=self.month_end, byweekday=self.BUSINESS_DAYS).count()
+        return rrule(DAILY, dtstart=self.now, until=self.pay_period_end, byweekday=self.BUSINESS_DAYS).count()
 
     @property
     def days_left_count(self):
-        return rrule(DAILY, dtstart=self.now, until=self.month_end, byweekday=self.WEEK_DAYS).count()
+        return rrule(DAILY, dtstart=self.now, until=self.pay_period_end, byweekday=self.WEEK_DAYS).count()
 
     @property
     def business_days_elapsed_count(self):
-        return rrule(DAILY, dtstart=self.month_start, until=self.now, byweekday=self.BUSINESS_DAYS).count()
+        return rrule(DAILY, dtstart=self.pay_period_start, until=self.now, byweekday=self.BUSINESS_DAYS).count()
 
     @property
     def days_elapsed_count(self):
-        firstday = self.month_start
+        firstday = self.pay_period_start
         today = self.now
         return rrule(DAILY, dtstart=firstday, until=today, byweekday=self.WEEK_DAYS).count()
 
